@@ -1,0 +1,50 @@
+version: "2"
+
+services:
+
+  ### Nginx Container #######################################
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./nginx/log:/var/log/nginx"
+      - "./nginx/conf/conf.d:/etc/nginx/conf.d"
+    volumes_from:
+      - php-fpm:rw
+    networks:
+      - frontend
+
+  ### PHP-Fpm Container #######################################
+  php-fpm:
+    container_name: php-fpm
+    build:
+      context: ./php-fpm
+    # command: ['sleep 3600']  
+    volumes:
+      - "/Users/shayyee/Documents/workspace/lnmp/www:/var/www/html"
+    networks:
+      - frontend
+    environment: 
+      - TZ=Asia/Shanghai
+
+  ### Mysql Container #######################################
+  mysql:
+    container_name: mysql
+    build:
+      context: ./mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./mysql/data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+    networks:
+      - frontend  
+
+networks:
+  frontend:
+    driver: "bridge"
